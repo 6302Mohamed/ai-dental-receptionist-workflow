@@ -1,0 +1,10 @@
+.env
+.env.local
+*.log
+node_modules/
+.DS_Store
+.vscode/
+secrets/
+credentials/
+*.key
+*.pem

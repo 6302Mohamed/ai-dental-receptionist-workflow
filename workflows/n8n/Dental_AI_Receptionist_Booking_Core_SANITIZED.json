@@ -1,0 +1,452 @@
+{
+  "name": "Dental AI Receptionist - Booking Core",
+  "nodes": [
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{\n(() => {\n  const normal = $('Normalize Vapi or Postman Input').first().json;\n  const result = $('Call Supabase try_book_slot').first().json;\n\n  if (normal.is_vapi_tool_call) {\n    return {\n      results: [\n        {\n          toolCallId: normal.tool_call_id,\n          result:\n            `status=${result.status || \"unknown\"}; ` +\n            `reason=${result.reason || \"\"}; ` +\n            `message=${result.message || \"\"}; ` +\n            `patient_name=${result.patient_name || normal.patient_name || \"\"}; ` +\n            `patient_contact=${result.patient_contact || normal.patient_contact || \"\"}; ` +\n            `service=${result.service_name || result.service_code || normal.service_code || \"\"}; ` +\n            `assigned_doctor=${result.assigned_doctor || \"\"}; ` +\n            `requested_start_time=${result.requested_start_time || normal.requested_start_time || \"\"}; ` +\n            `requested_end_time=${result.requested_end_time || \"\"}; ` +\n            `waitlist_reason=${result.waitlist_reason || \"\"}; ` +\n            `priority_score=${result.priority_score || \"\"}; ` +\n            `notification_email=${result.notification_email || normal.notification_email || \"\"}`\n        }\n      ]\n    };\n  }\n\n  return {\n    success: true,\n    action: \"book\",\n    booking_result: result\n  };\n})()\n}}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1104,
+        -736
+      ],
+      "id": "6fd686f5-f2ae-493b-b7f4-29456e63d341",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "dental-booking",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -928,
+        -640
+      ],
+      "id": "990444c6-16ac-4ae9-b6ed-9c726fac106f",
+      "name": "Webhook",
+      "webhookId": "YOUR_N8N_WEBHOOK_ID"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "YOUR_SLACK_CHANNEL_ID",
+          "mode": "list",
+          "cachedResultName": "YOUR_SLACK_CHANNEL_NAME"
+        },
+        "text": "={{\n(() => {\n  const r = $('Normalize Booking Result').first().json;\n  const n = $('Normalize Vapi or Postman Input').first().json;\n\n  return `:tooth: *BrightSmile AI Receptionist Alert*\n\n*Status:* ${r.status || \"N/A\"}\n*Patient:* ${r.patient_name || n.patient_name || \"N/A\"}\n*Contact:* ${r.patient_contact || n.patient_contact || \"N/A\"}\n*Service:* ${r.service_name || r.service_code || n.service_code || \"N/A\"}\n${r.assigned_doctor ? `*Assigned Doctor:* ${r.assigned_doctor}\\n` : \"\"}*Requested Time:* ${r.requested_start_time || n.requested_start_time || \"N/A\"}\n${r.requested_end_time ? `*End Time:* ${r.requested_end_time}\\n` : \"\"}${r.waitlist_reason ? `*Waitlist Reason:* ${r.waitlist_reason}\\n` : \"\"}${r.reason ? `*Reason:* ${r.reason}\\n` : \"\"}${r.priority_score ? `*Priority Score:* ${r.priority_score}\\n` : \"\"}${r.notification_email ? `*Notification Email:* ${r.notification_email}\\n` : \"\"}\n*Message:* ${r.message || \"No message returned\"}\n\n_Source: n8n + Supabase V2 scheduling workflow_`;\n})()\n}}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        432,
+        -592
+      ],
+      "id": "d0f22562-c70c-450b-80eb-265c14716e2c",
+      "name": "Send a message",
+      "webhookId": "YOUR_N8N_NODE_WEBHOOK_ID",
+      "credentials": {
+        "slackApi": {
+          "id": "YOUR_SLACKAPI_CREDENTIAL_ID",
+          "name": "YOUR_SLACKAPI_CREDENTIAL_NAME"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0d547ece-b887-42f6-871f-9d274ca35213",
+              "leftValue": "={{ $('Normalize Booking Result').first().json.status }}",
+              "rightValue": "confirmed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        608,
+        -592
+      ],
+      "id": "c8cb10f7-a75b-42d4-8888-3457ccf4a512",
+      "name": "Is Confirmed Booking?"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{\n(() => {\n  const normal = $('Normalize Vapi or Postman Input').first().json;\n  const result = $('Normalize Booking Result').first().json;\n\n  if (normal.is_vapi_tool_call) {\n    return {\n      results: [\n        {\n          toolCallId: normal.tool_call_id,\n          result:\n            `status=${result.status || \"unknown\"}; ` +\n            `reason=${result.reason || \"\"}; ` +\n            `message=${result.message || \"\"}; ` +\n            `patient_name=${result.patient_name || normal.patient_name || \"\"}; ` +\n            `patient_contact=${result.patient_contact || normal.patient_contact || \"\"}; ` +\n            `service=${result.service_name || result.service_code || normal.service_code || \"\"}; ` +\n            `assigned_doctor=${result.assigned_doctor || \"\"}; ` +\n            `requested_start_time=${result.requested_start_time || normal.requested_start_time || \"\"}; ` +\n            `requested_end_time=${result.requested_end_time || \"\"}; ` +\n            `waitlist_reason=${result.waitlist_reason || \"\"}; ` +\n            `priority_score=${result.priority_score || \"\"}; ` +\n            `notification_email=${result.notification_email || normal.notification_email || \"\"}`\n        }\n      ]\n    };\n  }\n\n  return {\n    success: true,\n    action: \"book\",\n    booking_result: result\n  };\n})()\n}}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1008,
+        -336
+      ],
+      "id": "eb3d182f-a728-4c4e-b948-e67318e3b850",
+      "name": "Respond to Webhook2"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_CALENDAR_ID",
+          "mode": "list",
+          "cachedResultName": "YOUR_GOOGLE_CALENDAR_NAME"
+        },
+        "start": "={{ $('Call Supabase try_book_slot').first().json.requested_start_time }}",
+        "end": "={{ $('Call Supabase try_book_slot').first().json.requested_end_time }}",
+        "additionalFields": {
+          "description": "=BrightSmile Dental Clinic Demo Booking\n\nPatient: {{ $('Call Supabase try_book_slot').first().json.patient_name || $('Normalize Vapi or Postman Input').first().json.patient_name || \"N/A\" }}\nContact: {{ $('Call Supabase try_book_slot').first().json.patient_contact || $('Normalize Vapi or Postman Input').first().json.patient_contact || \"N/A\" }}\nService: {{ $('Call Supabase try_book_slot').first().json.service_name || $('Call Supabase try_book_slot').first().json.service_code || \"N/A\" }}\nAssigned Doctor: {{ $('Call Supabase try_book_slot').first().json.assigned_doctor || \"N/A\" }}\nStatus: {{ $('Call Supabase try_book_slot').first().json.status || \"N/A\" }}\n\nCreated by: Vapi + n8n + Supabase V2 Scheduling Workflow",
+          "summary": "=Dental Appointment - {{ $('Call Supabase try_book_slot').first().json.patient_name || $('Normalize Vapi or Postman Input').first().json.patient_name }} - {{ $('Call Supabase try_book_slot').first().json.assigned_doctor || \"Doctor TBD\" }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        896,
+        -672
+      ],
+      "id": "81e28804-8a6f-4080-9bc8-6fafb632350c",
+      "name": "Create an event",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "YOUR_GOOGLECALENDAROAUTH2API_CREDENTIAL_ID",
+          "name": "YOUR_GOOGLECALENDAROAUTH2API_CREDENTIAL_NAME"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const incoming = $json.body || $json;\nconst message = incoming.message || {};\n\n// Vapi can send the tool call in several shapes\nconst toolCall =\n  message.toolCall ||\n  incoming.toolCall ||\n  message.toolCallList?.[0] ||\n  message.toolCalls?.[0] ||\n  incoming.toolCallList?.[0] ||\n  incoming.toolCalls?.[0] ||\n  message.toolWithToolCallList?.[0]?.toolCall ||\n  incoming.toolWithToolCallList?.[0]?.toolCall ||\n  null;\n\nfunction parseMaybeJson(value) {\n  if (typeof value !== \"string\") return value;\n\n  try {\n    return JSON.parse(value);\n  } catch (e) {\n    return {};\n  }\n}\n\nlet params =\n  toolCall?.parameters ||\n  toolCall?.arguments ||\n  toolCall?.function?.arguments ||\n  toolCall?.function?.parameters ||\n  incoming;\n\nparams = parseMaybeJson(params);\n\n// Some tools nest arguments one level deeper\nif (params?.arguments) {\n  params = parseMaybeJson(params.arguments);\n}\n\nlet action = String(params.action || incoming.action || \"book\")\n  .trim()\n  .toLowerCase();\n\nif (action === \"cancellation\") action = \"cancel\";\nif (action === \"cancel_booking\") action = \"cancel\";\n\nconst toolCallId =\n  toolCall?.id ||\n  toolCall?.toolCallId ||\n  toolCall?.callId ||\n  toolCall?.function?.id ||\n  null;\n\nfunction clean(value) {\n  if (value === undefined || value === null) return null;\n  const text = String(value).trim();\n  return text.length ? text : null;\n}\n\nfunction bool(value) {\n  return value === true || value === \"true\" || value === \"yes\" || value === \"Yes\";\n}\n\nreturn [\n  {\n    json: {\n      action,\n\n      // Shared patient fields\n      patient_name: clean(params.patient_name),\n      patient_contact: clean(params.patient_contact),\n\n      // Booking/cancellation matching fields\n      service_code: clean(params.service_code),\n      requested_start_time: clean(params.requested_start_time),\n      urgency: clean(params.urgency) || \"normal\",\n\n      // Waitlist fields\n      waitlist_consent: bool(params.waitlist_consent),\n      notification_email: clean(params.notification_email),\n\n      // Cancellation fields\n      booking_id: clean(params.booking_id),\n      cancelled_by: clean(params.cancelled_by) || \"patient_voice_call\",\n      cancellation_reason: clean(params.cancellation_reason) || \"Patient requested cancellation\",\n\n      source_channel: \"vapi_or_postman_workflow\",\n\n      // Vapi response fields\n      is_vapi_tool_call: Boolean(toolCallId),\n      tool_call_id: toolCallId,\n      tool_name:\n        clean(toolCall?.name) ||\n        clean(toolCall?.function?.name) ||\n        \"bookDentalAppointment\",\n\n      original_body: incoming\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -608,
+        -640
+      ],
+      "id": "b57f23b8-8b53-4b93-933e-eecb29a8d230",
+      "name": "Normalize Vapi or Postman Input"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "1ddbdf45-12e7-4645-a5da-5717461ed7e1",
+              "leftValue": "={{ $('Normalize Vapi or Postman Input').first().json.action }}",
+              "rightValue": "cancel",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -288,
+        -688
+      ],
+      "id": "77410f61-77d9-4370-901f-1e14d7d5c3d6",
+      "name": "Is Cancellation Action?"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "YOUR_SLACK_CHANNEL_ID",
+          "mode": "list",
+          "cachedResultName": "YOUR_SLACK_CHANNEL_NAME"
+        },
+        "text": "={{\n(() => {\n  const r = $('Normalize Cancellation Result').first().json;\n  const n = $('Normalize Vapi or Postman Input').first().json;\n\n  const c = r.cancelled_booking || {};\n  const w = r.recommended_waitlist_patient || {};\n\n  const staffAction =\n    r.status === \"verification_required\"\n      ? r.message\n      : w.staff_note || \"Review cancellation and contact patient manually if needed.\";\n\n  return `:tooth: *BrightSmile Cancellation / Waitlist Recommendation*\n\n*Status:* ${r.status || \"N/A\"}\n\n*Cancelled Booking*\nPatient: ${c.patient_name || n.patient_name || \"N/A\"}\nContact: ${c.patient_contact || n.patient_contact || \"N/A\"}\nService: ${c.service_name || c.service_code || n.service_code || \"N/A\"}\nDoctor: ${c.assigned_doctor || \"N/A\"}\nTime: ${c.requested_start_time || n.requested_start_time || \"N/A\"}\n\n*Recommended Waitlist Patient*\nPatient: ${w.patient_name || \"No matching waitlist patient\"}\nContact: ${w.patient_contact || \"N/A\"}\nEmail: ${w.notification_email || \"N/A\"}\nPriority: ${w.priority_score || \"N/A\"}\nReason: ${w.waitlist_reason || \"N/A\"}\n\n*Staff Action:* ${staffAction}\n\n_Source: n8n + Supabase cancellation workflow_`;\n})()\n}}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        432,
+        -1072
+      ],
+      "id": "f8ae2750-ded8-499c-8f6b-a85ba1c54ecc",
+      "name": "Slack Cancellation Alert",
+      "webhookId": "YOUR_N8N_NODE_WEBHOOK_ID",
+      "credentials": {
+        "slackApi": {
+          "id": "YOUR_SLACKAPI_CREDENTIAL_ID",
+          "name": "YOUR_SLACKAPI_CREDENTIAL_NAME"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{\n(() => {\n  const normal = $('Normalize Vapi or Postman Input').first().json;\n  const result = $('Normalize Booking Result').first().json;\n\n  if (normal.is_vapi_tool_call) {\n    return {\n      results: [\n        {\n          toolCallId: normal.tool_call_id,\n          result:\n            `status=${result.status || \"unknown\"}; ` +\n            `booking_id=${result.booking_id || \"\"}; ` +\n            `reason=${result.reason || \"\"}; ` +\n            `message=${result.message || \"\"}; ` +\n            `patient_name=${result.patient_name || normal.patient_name || \"\"}; ` +\n            `patient_contact=${result.patient_contact || normal.patient_contact || \"\"}; ` +\n            `service=${result.service_name || result.service_code || normal.service_code || \"\"}; ` +\n            `service_code=${result.service_code || normal.service_code || \"\"}; ` +\n            `assigned_doctor=${result.assigned_doctor || \"\"}; ` +\n            `requested_start_time=${result.requested_start_time || normal.requested_start_time || \"\"}; ` +\n            `requested_end_time=${result.requested_end_time || \"\"}; ` +\n            `waitlist_reason=${result.waitlist_reason || \"\"}; ` +\n            `priority_score=${result.priority_score || \"\"}; ` +\n            `notification_email=${result.notification_email || normal.notification_email || \"\"}`\n        }\n      ]\n    };\n  }\n\n  return { success: true, action: \"book\", booking_result: result };\n})()\n}}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        720,
+        -1056
+      ],
+      "id": "5f3547ec-ca10-4912-8f22-a2fe71ab6355",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "jsCode": "function parseMaybeJson(value) {\n  if (typeof value !== \"string\") return value;\n  try {\n    return JSON.parse(value);\n  } catch (e) {\n    return value;\n  }\n}\n\nconst raw = $input.first().json;\n\nlet result = raw;\n\nif (raw.error) {\n  result = {\n    status: \"human_required\",\n    message: \"Supabase connection failed. Clinic staff should verify this booking request.\",\n    error: raw.error\n  };\n} else {\n  if (result.body !== undefined) result = result.body;\n  if (result.data !== undefined) result = result.data;\n\n  result = parseMaybeJson(result);\n\n  if (Array.isArray(result)) {\n    result = result[0] || {};\n  }\n\n  result = parseMaybeJson(result);\n}\n\nreturn [\n  {\n    json: {\n      ...result,\n      raw_supabase_response: raw\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        -576
+      ],
+      "id": "66990e10-5f70-40f0-9dd5-2a932684acfc",
+      "name": "Normalize Booking Result"
+    },
+    {
+      "parameters": {
+        "jsCode": "function parseMaybeJson(value) {\n  if (typeof value !== \"string\") return value;\n\n  try {\n    return JSON.parse(value);\n  } catch (e) {\n    return value;\n  }\n}\n\nfunction plainError(error) {\n  if (!error) return null;\n\n  return {\n    message: error.message || String(error),\n    name: error.name || \"Error\",\n    code: error.code || null,\n    status: error.status || error.statusCode || null\n  };\n}\n\nfunction makePlain(value) {\n  if (value === null || value === undefined) return value;\n\n  if (value instanceof Error) {\n    return plainError(value);\n  }\n\n  if (Array.isArray(value)) {\n    return value.map(makePlain);\n  }\n\n  if (typeof value === \"object\") {\n    const output = {};\n\n    for (const key of Object.keys(value)) {\n      const current = value[key];\n\n      if (current instanceof Error) {\n        output[key] = plainError(current);\n      } else if (typeof current === \"object\" && current !== null) {\n        output[key] = makePlain(current);\n      } else {\n        output[key] = current;\n      }\n    }\n\n    return output;\n  }\n\n  return value;\n}\n\nconst rawInput = $input.first().json;\nconst raw = makePlain(rawInput);\n\nlet result = raw;\n\nif (raw.error) {\n  result = {\n    status: \"verification_required\",\n    message: \"The cancellation request was submitted, but the system could not confirm the final result. Clinic staff should verify the appointment status.\",\n    error: makePlain(raw.error)\n  };\n} else {\n  if (result.body !== undefined) result = result.body;\n  if (result.data !== undefined) result = result.data;\n\n  result = parseMaybeJson(result);\n\n  if (Array.isArray(result)) {\n    result = result[0] || {};\n  }\n\n  result = parseMaybeJson(result);\n  result = makePlain(result);\n}\n\nreturn [\n  {\n    json: {\n      ...result,\n      raw_supabase_response: raw\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        176,
+        -1056
+      ],
+      "id": "474f6d15-e2f2-4d07-9ee8-07c3863f1d51",
+      "name": "Normalize Cancellation Result"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\n\nconst FULL_RPC_URL = \"https://YOUR_SUPABASE_PROJECT.supabase.co/rest/v1/rpc/try_book_slot\";\nconst SERVICE_ROLE_KEY = \"YOUR_SUPABASE_SERVICE_ROLE_KEY\";\n\nconst payload = {\n  p_patient_name: input.patient_name || null,\n  p_patient_contact: input.patient_contact || null,\n  p_service_code: input.service_code || null,\n  p_requested_start_time: input.requested_start_time || null,\n  p_urgency: input.urgency || \"normal\",\n  p_source_channel: input.source_channel || \"n8n_code_node\",\n  p_raw_payload: input.original_body || input,\n  p_waitlist_consent: input.waitlist_consent === true,\n  p_notification_email: input.notification_email || null\n};\n\nfunction sleep(ms) {\n  return new Promise(resolve => setTimeout(resolve, ms));\n}\n\nlet lastError = null;\n\nfor (let attempt = 1; attempt <= 4; attempt++) {\n  try {\n    const data = await this.helpers.httpRequest({\n      method: \"POST\",\n      url: FULL_RPC_URL,\n      headers: {\n        \"apikey\": SERVICE_ROLE_KEY,\n        \"Authorization\": \"Bearer \" + SERVICE_ROLE_KEY,\n        \"Content-Type\": \"application/json\"\n      },\n      body: payload,\n      json: true,\n      timeout: 10000\n    });\n\n    if (data && typeof data === \"object\" && !Array.isArray(data)) {\n      data.rpc_attempt = attempt;\n      return [{ json: data }];\n    }\n\n    return [\n      {\n        json: {\n          data,\n          rpc_attempt: attempt\n        }\n      }\n    ];\n  } catch (error) {\n    lastError = {\n      message: error.message || String(error),\n      name: error.name || \"Error\",\n      code: error.code || null,\n      status: error.statusCode || error.status || null,\n      attempt\n    };\n\n    if (attempt < 4) {\n      await sleep(2000 * attempt);\n    }\n  }\n}\n\nreturn [\n  {\n    json: {\n      error: lastError,\n      attempted_payload: payload\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        -592
+      ],
+      "id": "7d4f8a9c-63d1-490e-a4a5-4ca70fd725a9",
+      "name": "Call Supabase try_book_slot"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\n\nconst FULL_RPC_URL = \"https://YOUR_SUPABASE_PROJECT.supabase.co/rest/v1/rpc/cancel_booking_and_suggest_waitlist\";\nconst SERVICE_ROLE_KEY = \"YOUR_SUPABASE_SERVICE_ROLE_KEY\";\n\nconst payload = {\n  p_booking_id: input.booking_id || null,\n  p_patient_name: input.patient_name || null,\n  p_patient_contact: input.patient_contact || null,\n  p_service_code: input.service_code || null,\n  p_requested_start_time: input.requested_start_time || null,\n  p_cancelled_by: input.cancelled_by || \"workflow\",\n  p_cancellation_reason: input.cancellation_reason || \"Patient requested cancellation\",\n  p_source_channel: input.source_channel || \"n8n_code_node\",\n  p_raw_payload: input.original_body || input\n};\n\nfunction sleep(ms) {\n  return new Promise(resolve => setTimeout(resolve, ms));\n}\n\nlet lastError = null;\n\nfor (let attempt = 1; attempt <= 4; attempt++) {\n  try {\n    const data = await this.helpers.httpRequest({\n      method: \"POST\",\n      url: FULL_RPC_URL,\n      headers: {\n        \"apikey\": SERVICE_ROLE_KEY,\n        \"Authorization\": \"Bearer \" + SERVICE_ROLE_KEY,\n        \"Content-Type\": \"application/json\"\n      },\n      body: payload,\n      json: true,\n      timeout: 10000\n    });\n\n    if (data && typeof data === \"object\" && !Array.isArray(data)) {\n      data.rpc_attempt = attempt;\n      return [{ json: data }];\n    }\n\n    return [\n      {\n        json: {\n          data,\n          rpc_attempt: attempt\n        }\n      }\n    ];\n  } catch (error) {\n    lastError = {\n      message: error.message || String(error),\n      name: error.name || \"Error\",\n      code: error.code || null,\n      status: error.statusCode || error.status || null,\n      attempt\n    };\n\n    if (attempt < 4) {\n      await sleep(2000 * attempt);\n    }\n  }\n}\n\nreturn [\n  {\n    json: {\n      error: lastError,\n      attempted_payload: payload\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        -1040
+      ],
+      "id": "75dcbabe-d2d2-45ad-b7e3-0d05ff95633f",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize Vapi or Postman Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Is Confirmed Booking?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Confirmed Booking?": {
+      "main": [
+        [
+          {
+            "node": "Create an event",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an event": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Vapi or Postman Input": {
+      "main": [
+        [
+          {
+            "node": "Is Cancellation Action?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Cancellation Action?": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call Supabase try_book_slot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Cancellation Alert": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Booking Result": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Cancellation Result": {
+      "main": [
+        [
+          {
+            "node": "Slack Cancellation Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Supabase try_book_slot": {
+      "main": [
+        [
+          {
+            "node": "Normalize Booking Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Normalize Cancellation Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook2": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "YOUR_WORKFLOW_VERSION_ID",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "YOUR_N8N_INSTANCE_ID"
+  },
+  "nodeGroups": [],
+  "id": "YOUR_WORKFLOW_ID",
+  "tags": []
+}
