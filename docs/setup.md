@@ -60,11 +60,11 @@ brightsmile-ai-receptionist/
     ├── diagrams/
     │   └── brightsmile-system-flow.png
     └── screenshots/
-        ├── n8n-workflow.png
-        ├── vapi-booking-transcript.png
-        ├── slack-alert.png
-        ├── supabase-booking-row.png
-        └── google-calendar-event.png
+        ├── n8n-workflow.png.png
+        ├── vapi-booking-transcript.png.png
+        ├── slack-alert.png.png
+        ├── supabase-booking-row.png.png
+        └── google-calendar-event.png.png
 ```
 
 ---
