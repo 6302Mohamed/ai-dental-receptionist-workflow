@@ -557,7 +557,32 @@ For the public GitHub version:
 The included screenshots and workflow export should be sanitized before publishing.
 
 ---
+## Adaptability
 
+Although this demo is built around a dental clinic, the same architecture can be adapted to other appointment-based or service-based businesses.
+
+Examples include:
+
+- Hotels and guest inquiry handling
+- Clinics and healthcare intake workflows
+- Salons, spas, and barbershops
+- Real estate lead qualification and viewing requests
+- Customer support triage
+- Field service booking workflows
+
+The core pattern stays the same:
+
+```text
+Voice or chat assistant
+→ structured tool call
+→ workflow automation
+→ backend source of truth
+→ staff notification
+→ human review for sensitive cases
+```
+
+
+---
 ## What Could Be Added Next
 
 Future improvements could include:
