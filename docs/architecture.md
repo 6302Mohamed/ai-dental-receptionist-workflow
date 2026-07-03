@@ -12,7 +12,7 @@ The goal of the architecture is simple:
 
 The simplified diagram below is the best high-level view of the project.
 
-![BrightSmile AI Receptionist System Flow](../assets/diagrams/brightsmile-system-flow.png)
+![BrightSmile AI Receptionist System Flow](../assets/diagrams/brightsmile-system-flow.png.png)
 
 ---
 
