@@ -75,7 +75,7 @@ Planned demo flow:
 
 ## System Flow
 
-![BrightSmile AI Receptionist System Flow](assets/diagrams/brightsmile-system-flow.png)
+![BrightSmile AI Receptionist System Flow](assets/diagrams/brightsmile-system-flow.png.png)
 
 ---
 
@@ -320,32 +320,32 @@ Recommended screenshot names:
 
 ### n8n Workflow
 
-![n8n Workflow](assets/screenshots/n8n-workflow.png)
+![n8n Workflow](assets/screenshots/n8n-workflow.png.png)
 
 ### Vapi Booking Transcript
 
-![Vapi Booking Transcript](assets/screenshots/vapi-booking-transcript.png)
+![Vapi Booking Transcript](assets/screenshots/vapi-booking-transcript.png.png)
 
 ### Slack Alert
 
-![Slack Alert](assets/screenshots/slack-alert.png)
+![Slack Alert](assets/screenshots/slack-alert.png.png)
 
 ### Supabase Booking Row
 
-![Supabase Booking Row](assets/screenshots/supabase-booking-row.png)
+![Supabase Booking Row](assets/screenshots/supabase-booking-row.png.png)
 
 ### Google Calendar Event
 
-![Google Calendar Event](assets/screenshots/google-calendar-event.png)
+![Google Calendar Event](assets/screenshots/google-calendar-event.png.png)
 
 Optional extra screenshots:
 
 ```text
-assets/screenshots/vapi-cancellation-transcript.png
-assets/screenshots/vapi-waitlist-transcript.png
-assets/screenshots/n8n-booking-execution.png
-assets/screenshots/n8n-cancellation-execution.png
-assets/screenshots/supabase-waitlist-row.png
+assets/screenshots/vapi-cancellation-transcript.png.pmg
+assets/screenshots/vapi-waitlist-transcript.png.png
+assets/screenshots/n8n-booking-execution.png.png
+assets/screenshots/n8n-cancellation-execution.png.png
+assets/screenshots/supabase-waitlist-row.png.png
 ```
 
 ---
@@ -370,11 +370,11 @@ ai-dental-receptionist-workflow/
     ├── diagrams/
     │   └── brightsmile-system-flow.png
     └── screenshots/
-        ├── n8n-workflow.png
-        ├── vapi-booking-transcript.png
-        ├── slack-alert.png
-        ├── supabase-booking-row.png
-        └── google-calendar-event.png
+        ├── n8n-workflow.png.png
+        ├── vapi-booking-transcript.png.png
+        ├── slack-alert.png.png
+        ├── supabase-booking-row.png.png
+        └── google-calendar-event.png.png
 ```
 
 ---
@@ -578,22 +578,27 @@ Future improvements could include:
 
 ---
 
-## Current Status
+## Project Status
 
-- Voice booking: working
-- Voice cancellation: working
-- Waitlist: working
-- Cancellation waitlist recommendation: working
-- Vapi prompt: working
-- Tool schema: working
-- n8n retry logic: added
-- Slack alerts: integrated
-- Google Calendar: integrated
-- GitHub-safe sanitized workflow: prepared
+This prototype is functionally complete for the main demo workflow.
+
+| Feature | Status |
+|---|---|
+| Voice appointment booking | Working |
+| Voice appointment cancellation | Working |
+| Cancellation waitlist flow | Working |
+| Waitlist recommendation after cancellation | Working |
+| Vapi assistant prompt | Configured |
+| Vapi tool schema | Configured |
+| n8n retry handling | Added |
+| Slack staff alerts | Integrated |
+| Google Calendar event creation | Integrated |
+| GitHub-safe sanitized n8n workflow | Included |
+| Demo video | Coming soon |
 
 ---
 
 ## Author
-
-Built as a portfolio project to demonstrate practical AI automation, voice-agent workflow design, backend scheduling logic, human-in-the-loop automation, and reliable tool-calling behavior.
+Mohamed Yousuf Husein <br>
+Agentic AI Engineer & Workflow Automation
 
